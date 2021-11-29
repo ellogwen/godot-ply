@@ -1,14 +1,14 @@
-tool
-extends Spatial
+@tool
+extends Node3D
 
-export(int) var edge_idx = -1
-export(Resource) var ply_mesh
+@export var edge_idx: int = -1
+@export var ply_mesh: Resource
 
 var plugin = null
 var material = preload("./vertex_material.tres")
 var selected_material = preload("./vertex_selected_material.tres")
 
-onready var mesh_instance = $MeshInstance
+@onready var mesh_instance = $MeshInstance
 var is_selected = false
 
 func get_idx():
@@ -16,15 +16,15 @@ func get_idx():
 
 func _enter_tree():
 	if plugin:
-		plugin.selector.connect("selection_changed", self, "_on_selection_changed")
+		plugin.selector.selection_changed.connect(self._on_selection_changed)
 	if ply_mesh:
-		ply_mesh.connect("mesh_updated", self, "_on_mesh_updated")
+		ply_mesh.mesh_updated.connect(self._on_mesh_updated)
 
 func _exit_tree():
 	if plugin:
-		plugin.selector.disconnect("selection_changed", self, "_on_selection_changed")
+		plugin.selector.selection_changed.disconnect(self._on_selection_changed)
 	if ply_mesh:
-		ply_mesh.disconnect("mesh_updated", self, "_on_mesh_updated")
+		ply_mesh.mesh_updated.disconnect(self._on_mesh_updated)
 
 func _ready():
 	set_meta("_edit_lock_", true)
@@ -48,7 +48,7 @@ func _on_mesh_updated():
 	var length = origin.distance_to(destination)
 
 	if not mesh_instance.mesh:
-		var new_mesh = CubeMesh.new()
+		var new_mesh = BoxMesh.new()
 		new_mesh.size = Vector3(0.1, 0.1, length)
 		mesh_instance.mesh = new_mesh
 	else:

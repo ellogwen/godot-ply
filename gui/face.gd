@@ -1,18 +1,18 @@
-tool
-extends Spatial
+@tool
+extends Node3D
 
-export(int) var face_idx = -1
-export(Resource) var ply_mesh
+@export var face_idx: int = -1
+@export var ply_mesh: Resource
 
 var plugin
 
-onready var mesh_instance = $MeshInstance
+@onready var mesh_instance = $MeshInstance
 
 var material = preload("./face_material.tres")
 var selected_material = preload("./face_selected_material.tres")
 
-var vertex_idxs = PoolIntArray()
-var vertexes = PoolVector3Array()
+var vertex_idxs = PackedInt32Array()
+var vertexes = PackedVector3Array()
 var geometric_median 
 var face_normal
 var is_selected = false
@@ -25,15 +25,15 @@ func _enter_tree():
 		return
 	
 	if plugin:
-		plugin.selector.connect("selection_changed", self, "_on_selection_changed")
+		plugin.selector.selection_changed.connect(self._on_selection_changed)
 	if ply_mesh:
-		ply_mesh.connect("mesh_updated", self, "_on_mesh_updated")
+		ply_mesh.mesh_updated.connect(self._on_mesh_updated)
 
 func _exit_tree():
 	if plugin:
-		plugin.selector.disconnect("selection_changed", self, "_on_selection_changed")
+		plugin.selector.selection_changed.disconnect(self._on_selection_changed)
 	if ply_mesh:
-		ply_mesh.disconnect("mesh_updated", self, "_on_mesh_updated")
+		ply_mesh.mesh_updated.disconnect(self._on_mesh_updated)
 
 func _ready():
 	set_meta("_edit_lock_", true)
@@ -41,7 +41,7 @@ func _ready():
 	is_selected = plugin.selector.selection.has(face_idx)
 	_on_mesh_updated()
 
-var prev_vertexes = null
+var prev_vertexes := PackedVector3Array()
 func _on_mesh_updated():
 	if face_idx >= ply_mesh.face_count():
 		# about to be freed
@@ -52,7 +52,7 @@ func _on_mesh_updated():
 	for i in range(vertex_idxs.size()):
 		vertexes[i] = ply_mesh.vertexes[vertex_idxs[i]]
 
-	if prev_vertexes and prev_vertexes.size() == vertexes.size():
+	if prev_vertexes.size() == vertexes.size():
 		var skip = true
 		for idx in range(prev_vertexes.size()):
 			if prev_vertexes[idx] != vertexes[idx]:

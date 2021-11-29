@@ -1,14 +1,14 @@
-tool
-extends Spatial
+@tool
+extends Node3D
 
-export(int) var vertex_idx = -1
-export(Resource) var ply_mesh
+@export var vertex_idx: int = -1
+@export var ply_mesh: Resource
 
 var plugin = null
 var material = preload("./vertex_material.tres")
 var selected_material = preload("./vertex_selected_material.tres")
 
-onready var mesh_instance = $MeshInstance
+@onready var mesh_instance = $MeshInstance
 
 func _ready():
 	set_meta("_edit_lock_", true)
@@ -20,15 +20,15 @@ func _enter_tree():
 		return
 
 	if plugin:
-		plugin.selector.connect("selection_changed", self, "_on_selection_changed")
+		plugin.selector.selection_changed.connect(self._on_selection_changed)
 	if ply_mesh:
-		ply_mesh.connect("mesh_updated", self, "_on_mesh_updated")
+		ply_mesh.mesh_updated.connect(self._on_mesh_updated)
 
 func _exit_tree():
 	if plugin:
-		plugin.selector.disconnect("selection_changed", self, "_on_selection_changed")
+		plugin.selector.selection_changed.disconnect(self._on_selection_changed)
 	if ply_mesh:
-		ply_mesh.disconnect("mesh_updated", self, "_on_mesh_updated")
+		ply_mesh.mesh_updated.disconnect(self._on_mesh_updated)
 
 func _on_mesh_updated():
 	transform.origin = ply_mesh.vertexes[vertex_idx]

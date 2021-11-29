@@ -1,25 +1,9 @@
-tool
+@tool
 extends Resource
 class_name PlyMesh
 
-"""
-███████╗██╗ ██████╗ ███╗   ██╗ █████╗ ██╗     ███████╗
-██╔════╝██║██╔════╝ ████╗  ██║██╔══██╗██║     ██╔════╝
-███████╗██║██║  ███╗██╔██╗ ██║███████║██║     ███████╗
-╚════██║██║██║   ██║██║╚██╗██║██╔══██║██║     ╚════██║
-███████║██║╚██████╔╝██║ ╚████║██║  ██║███████╗███████║
-╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝╚══════╝
-"""
 signal mesh_updated
 
-"""
-███████╗███╗   ██╗██╗   ██╗███╗   ███╗███████╗
-██╔════╝████╗  ██║██║   ██║████╗ ████║██╔════╝
-█████╗  ██╔██╗ ██║██║   ██║██╔████╔██║███████╗
-██╔══╝  ██║╚██╗██║██║   ██║██║╚██╔╝██║╚════██║
-███████╗██║ ╚████║╚██████╔╝██║ ╚═╝ ██║███████║
-╚══════╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝
-"""
 const Side = preload("../utils/direction.gd")
 
 func is_manifold():
@@ -55,27 +39,19 @@ func is_manifold():
 			return "Edge %s has %s face(s)." % [e, seen_edges[e]]
 	return null
 
-"""
-██╗   ██╗███████╗██████╗ ████████╗██╗ ██████╗███████╗███████╗
-██║   ██║██╔════╝██╔══██╗╚══██╔══╝██║██╔════╝██╔════╝██╔════╝
-██║   ██║█████╗  ██████╔╝   ██║   ██║██║     █████╗  ███████╗
-╚██╗ ██╔╝██╔══╝  ██╔══██╗   ██║   ██║██║     ██╔══╝  ╚════██║
- ╚████╔╝ ███████╗██║  ██║   ██║   ██║╚██████╗███████╗███████║
-  ╚═══╝  ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝╚══════╝╚══════╝
-"""
-export var vertexes = PoolVector3Array()
-export var vertex_edges = PoolIntArray()
+@export var vertexes = PackedVector3Array()
+@export var vertex_edges = PackedInt32Array()
 
 func evict_vertices(idxs, ignore_edges=[]):
 	idxs.sort()
 	idxs.invert()
 	for idx in idxs:
-		vertexes.remove(idx)
-		vertex_edges.remove(idx)
+		vertexes.remove_at(idx)
+		vertex_edges.remove_at(idx)
 		for e_idx in range(edge_vertexes.size()):
 			if ignore_edges.has(e_idx/2):
 				continue
-			assert(edge_vertexes[e_idx] != idx, "trying to evict vertex %s in use by edge %s" % [idx, e_idx/2])
+			assert(edge_vertexes[e_idx] != idx, "trying to evict vertex in use by edge")
 			if edge_vertexes[e_idx] > idx:
 				edge_vertexes[e_idx] -= 1
 
@@ -139,25 +115,18 @@ func get_vertex_edges(v_idx, start=null):
 		elif edge_destination_idx(e) == v_idx:
 			e = edge_right_cw(e)
 		else:
-			assert(false, "edge %s does not include vertex %s" % [start, v_idx])
+			print("edge %s does not include vertex %s" % [start, v_idx])
+			assert(false)
 
 	return out
 
-"""
-███████╗██████╗  ██████╗ ███████╗███████╗
-██╔════╝██╔══██╗██╔════╝ ██╔════╝██╔════╝
-█████╗  ██║  ██║██║  ███╗█████╗  ███████╗
-██╔══╝  ██║  ██║██║   ██║██╔══╝  ╚════██║
-███████╗██████╔╝╚██████╔╝███████╗███████║
-╚══════╝╚═════╝  ╚═════╝ ╚══════╝╚══════╝
-"""
 # 2 vertices and faces per edge
 # 2 connecting edges per edge, one way traversal
 # 2*idx for left, 2*idx+1 for right
 #         origin,       destination
-export var edge_vertexes = PoolIntArray()
-export var edge_faces = PoolIntArray()
-export var edge_edges = PoolIntArray()
+@export var edge_vertexes = PackedInt32Array()
+@export var edge_faces = PackedInt32Array()
+@export var edge_edges = PackedInt32Array()
 
 func evict_edges(idxs):
 	idxs.sort()
@@ -167,27 +136,27 @@ func evict_edges(idxs):
 		ignore.erase(idx)
 		var l = 2*idx
 		var r = 2*idx+1
-		edge_vertexes.remove(r)
-		edge_vertexes.remove(l)
-		edge_faces.remove(r)
-		edge_faces.remove(l)
-		edge_edges.remove(r)
-		edge_edges.remove(l)
+		edge_vertexes.remove_at(r)
+		edge_vertexes.remove_at(l)
+		edge_faces.remove_at(r)
+		edge_faces.remove_at(l)
+		edge_edges.remove_at(r)
+		edge_edges.remove_at(l)
 
 		for i in range(edge_edges.size()):
 			if ignore.has(i/2):
 				continue
-			assert(edge_edges[i] != idx, "attempting to evict edge %s in use by edge %s" % [idx, i/2])
+			assert(edge_edges[i] != idx, "attempting to evict edge in use by edge")
 			if edge_edges[i] > idx:
 				edge_edges[i] -= 1
 		
 		for i in range(vertex_edges.size()):
-			assert(vertex_edges[i] != idx, "attempting to evict edge %s in use by vertex %s" % [idx, i])
+			assert(vertex_edges[i] != idx, "attempting to evict edge in use by vertex")
 			if vertex_edges[i] > idx:
 				vertex_edges[i] -= 1
 		
 		for i in range(face_edges.size()):
-			assert(face_edges[i] != idx, "attempting to evict edge %s in use by face %s" % [idx, i])
+			assert(face_edges[i] != idx, "attempting to evict edge in use by face")
 			if face_edges[i] > idx:
 				face_edges[i] -= 1
 
@@ -204,7 +173,8 @@ func edge_side(e_idx, f_idx):
 		return Side.LEFT
 	if edge_face_right(e_idx) == f_idx:
 		return Side.RIGHT
-	assert(false, "edge %s does not touch face %s" % [e_idx, f_idx])
+	print("edge %s does not touch face %s" % [e_idx, f_idx])
+	assert(false)
 
 func edge_face(e_idx, side):
 	match side:
@@ -300,28 +270,20 @@ func set_edge_destination(e, v):
 func edge_midpoint(e):
 	return (edge_origin(e) + edge_destination(e)) / 2
 
-"""
-███████╗ █████╗  ██████╗███████╗███████╗
-██╔════╝██╔══██╗██╔════╝██╔════╝██╔════╝
-█████╗  ███████║██║     █████╗  ███████╗
-██╔══╝  ██╔══██║██║     ██╔══╝  ╚════██║
-██║     ██║  ██║╚██████╗███████╗███████║
-╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝╚══════╝
-"""
-export var face_edges = PoolIntArray()
-export var face_surfaces = PoolIntArray()
+@export var face_edges = PackedInt32Array()
+@export var face_surfaces = PackedInt32Array()
 
 func evict_faces(idxs, ignore_edges=[]):
 	idxs.sort()
 	idxs.invert()
 	for f_idx in idxs:
-		face_edges.remove(f_idx)
-		face_surfaces.remove(f_idx)
+		face_edges.remove_at(f_idx)
+		face_surfaces.remove_at(f_idx)
 
 		for i in range(edge_faces.size()):
 			if ignore_edges.has(i/2):
 				continue
-			assert(edge_faces[i] != f_idx, "attempting to evict face %s in use by edge %s" % [f_idx, i/2])
+			assert(edge_faces[i] != f_idx, "attempting to evict face in use by edge ")
 			if edge_faces[i] > f_idx:
 				edge_faces[i] -= 1
 
@@ -340,20 +302,21 @@ func get_face_edges(idx):
 
 func face_vertex_indexes(idx):
 	var edges = get_face_edges(idx)
-	assert(edges.size() > 0, "face %s has no edges" % [idx])
-	var verts = PoolIntArray()
+	assert(edges.size() > 0, "face has no edges")
+	var verts = PackedInt32Array()
 	for e in edges:
 		if edge_face_left(e) == idx:
 			verts.push_back(edge_origin_idx(e))
 		elif edge_face_right(e) == idx:
 			verts.push_back(edge_destination_idx(e))
 		else:
-			assert(false, "edge %s retured does not include face %s" % [e, idx])
+			print("edge %s retured does not include face %s" % [e, idx])
+			assert(false)
 	return verts
 
 func face_vertices(idx):
 	var vert_idxs = face_vertex_indexes(idx)
-	var verts = PoolVector3Array()
+	var verts = PackedVector3Array()
 	for idx in vert_idxs:
 		verts.push_back(vertexes[idx])
 	return verts
@@ -370,14 +333,6 @@ func face_surface(idx):
 func set_face_surface(idx, s):
 	face_surfaces[idx] = s
 
-"""
-██████╗ ███████╗███╗   ██╗██████╗ ███████╗██████╗ ██╗███╗   ██╗ ██████╗ 
-██╔══██╗██╔════╝████╗  ██║██╔══██╗██╔════╝██╔══██╗██║████╗  ██║██╔════╝ 
-██████╔╝█████╗  ██╔██╗ ██║██║  ██║█████╗  ██████╔╝██║██╔██╗ ██║██║  ███╗
-██╔══██╗██╔══╝  ██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗██║██║╚██╗██║██║   ██║
-██║  ██║███████╗██║ ╚████║██████╔╝███████╗██║  ██║██║██║ ╚████║╚██████╔╝
-╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-"""
 func face_tris(f_idx):
 	var verts = face_vertices(f_idx)
 	if verts.size() == 0:
@@ -400,7 +355,7 @@ func face_tris(f_idx):
 	
 	while remaining.size() > 3:
 		var min_idx = null
-		var min_dot = null
+		var min_dot: float = -1
 		for curr in range(remaining.size()):
 			var prev = curr-1
 			if prev < 0:
@@ -418,7 +373,7 @@ func face_tris(f_idx):
 
 			var d = ab.dot(bc)
 
-			if not min_dot or d < min_dot:
+			if min_dot < 0 or d < min_dot:
 				min_idx = curr
 				min_dot = d
 
@@ -430,7 +385,7 @@ func face_tris(f_idx):
 		if next >= remaining.size():
 			next = 0
 		tris.push_back([remaining[prev], remaining[curr], remaining[next]])
-		remaining.remove(min_idx)
+		remaining.remove_at(min_idx)
 
 	if remaining.size() == 3:
 		tris.push_back([remaining[0], remaining[1], remaining[2]])
@@ -455,7 +410,7 @@ func render_face(st, f_idx, offset=Vector3.ZERO, num_verts=0):
 
 	return verts.size()
 
-func get_mesh(mesh=null):
+func get_mesh(mesh: ArrayMesh =null):
 	var max_surface = 0
 	var surface_map = {}
 	for f_idx in range(face_surfaces.size()):
@@ -470,8 +425,7 @@ func get_mesh(mesh=null):
 	surfaces.resize(max_surface+1)
 	if not mesh:
 		mesh = ArrayMesh.new()
-	while mesh.get_surface_count() > 0:
-		mesh.surface_remove(0)
+	mesh.clear_surfaces()
 	for s_idx in range(surfaces.size()):
 		var st = SurfaceTool.new()
 		st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -488,14 +442,14 @@ func get_mesh(mesh=null):
 		
 
 func set_mesh(vs, ves, fes, fss, evs, efs, ees):
-	vertexes = PoolVector3Array(vs)
-	vertex_edges = PoolIntArray(ves)
-	face_edges = PoolIntArray(fes)
-	face_surfaces = PoolIntArray(fss)
-	edge_vertexes = PoolIntArray(evs)
-	edge_faces = PoolIntArray(efs)
-	edge_edges = PoolIntArray(ees)
-	emit_signal("mesh_updated")
+	vertexes = PackedVector3Array(vs)
+	vertex_edges = PackedInt32Array(ves)
+	face_edges = PackedInt32Array(fes)
+	face_surfaces = PackedInt32Array(fss)
+	edge_vertexes = PackedInt32Array(evs)
+	edge_faces = PackedInt32Array(efs)
+	edge_edges = PackedInt32Array(ees)
+	self.mesh_updated.emit()
 
 
 func face_intersect_ray_distance(face_idx, ray_start, ray_dir):
@@ -535,14 +489,6 @@ func face_intersect_ray_distance(face_idx, ray_start, ray_dir):
 				min_dist = t
 	return min_dist
 
-"""
-████████╗ ██████╗  ██████╗ ██╗     ███████╗
-╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝
-   ██║   ██║   ██║██║   ██║██║     ███████╗
-   ██║   ██║   ██║██║   ██║██║     ╚════██║
-   ██║   ╚██████╔╝╚██████╔╝███████╗███████║
-   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝
-"""
 func begin_edit():
 	return [vertexes, vertex_edges, edge_vertexes, edge_faces, edge_edges, face_edges, face_surfaces]
 
@@ -579,14 +525,6 @@ func commit_edit(name, undo_redo, pre_edits):
 	undo_redo.commit_action()
 	emit_signal("mesh_updated")
 
-"""
-███████╗██████╗ ██╗████████╗██╗███╗   ██╗ ██████╗ 
-██╔════╝██╔══██╗██║╚══██╔══╝██║████╗  ██║██╔════╝ 
-█████╗  ██║  ██║██║   ██║   ██║██╔██╗ ██║██║  ███╗
-██╔══╝  ██║  ██║██║   ██║   ██║██║╚██╗██║██║   ██║
-███████╗██████╔╝██║   ██║   ██║██║ ╚████║╚██████╔╝
-╚══════╝╚═════╝ ╚═╝   ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-"""
 func translate_face_by_median(f_idx, new_median):
 	var v_idxs = face_vertex_indexes(f_idx)
 	var vs = face_vertices(f_idx)

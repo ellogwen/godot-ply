@@ -1,38 +1,44 @@
-tool
-extends Spatial
+@tool
+extends Node3D
 
 const SelectionMode = preload("../utils/selection_mode.gd")
 
-var edited_node = null setget set_node
-func set_node(n):
-	if n == edited_node:
-		return
-	if edited_node:
-		edited_node.disconnect("transform_updated", self, "_on_transform_updated")
-		edited_node.ply_mesh.disconnect("mesh_updated", self, "_on_mesh_updated")
-	edited_node = n
-	if edited_node:
-		edited_node.connect("transform_updated", self, "_on_transform_updated")
-		edited_node.ply_mesh.connect("mesh_updated", self, "_on_mesh_updated")
-		transform = edited_node.global_transform
-	render()
+var _edited_node = null
+var edited_node :
+	get: return _edited_node
+	set(n):
+		if n == _edited_node:
+			return
+		if _edited_node:
+			_edited_node.transform_updated.disconnect(self._on_transform_updated)
+			_edited_node.ply_mesh.mesh_updated.disconnect(self._on_mesh_updated)
+		_edited_node = n
+		if _edited_node:
+			_edited_node.transform_updated.connect(self._on_transform_updated)
+			_edited_node.ply_mesh.mesh_updated.connect(self._on_mesh_updated)
+			transform = _edited_node.global_transform
+		render()
 
-var is_visible = true setget set_is_visible
-func set_is_visible(val):
-	is_visible = val
-	if is_visible:
-		show()
-	else:
-		hide()
+var _is_visible = true
+var is_visible:
+	get: return _is_visible
+	set(val):
+		_is_visible = val
+		if _is_visible:
+			show()
+		else:
+			hide()
 
 var plugin = null
 
-var mode = SelectionMode.MESH setget set_mode
-func set_mode(m):
-	if mode == m:
-		return
-	mode = m
-	render()
+var _mode = SelectionMode.MESH
+var mode:
+	get: return _mode
+	set(m):
+		if _mode == m:
+			return
+		_mode = m
+		render()
 
 const FaceScene = preload("./face.tscn")
 const EdgeScene = preload("./edge.tscn")
@@ -70,7 +76,7 @@ func _on_transform_updated():
 	self.transform = edited_node.global_transform
 
 func instance_face(idx):
-	var sc = FaceScene.instance()
+	var sc = FaceScene.instantiate()
 	sc.name = "face_%s" % [idx]
 	sc.face_idx = idx
 	sc.ply_mesh = edited_node.ply_mesh
@@ -96,7 +102,7 @@ func render_faces():
 		instance_face(idx)
 
 func instance_edge(idx):
-	var sc = EdgeScene.instance()
+	var sc = EdgeScene.instantiate()
 	sc.name = "edge_%s" % [idx]
 	sc.edge_idx = idx
 	sc.ply_mesh = edited_node.ply_mesh
@@ -112,7 +118,7 @@ func render_edges():
 
 func instance_vertex(idx):
 	var v = edited_node.ply_mesh.vertexes[idx]
-	var sc = VertexScene.instance()
+	var sc = VertexScene.instantiate()
 	sc.name = "vertex_%s" % [idx]
 	sc.vertex_idx = idx
 	sc.ply_mesh = edited_node.ply_mesh
