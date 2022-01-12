@@ -52,7 +52,7 @@ func _enter_tree():
 	if not Engine.editor_hint:
 		return
 
-	if false and get_parent() and get_parent().is_class("MeshInstance") and get_parent().mesh:
+	if get_parent() and get_parent().is_class("MeshInstance") and get_parent().mesh:
 		var generate = load("res://addons/ply/resources/generate.gd")
 		_ply_mesh = PlyMesh.new()
 		for surface_i in get_parent().mesh.get_surface_count():
@@ -62,36 +62,54 @@ func _enter_tree():
 			var vertices : PoolVector3Array = []
 			vertices.resize(mdt.get_vertex_count())
 			var vertex_edges : PoolIntArray
+			vertex_edges.resize(mdt.get_vertex_count())
 			var edge_vertexes : PoolIntArray
+			edge_vertexes.resize(mdt.get_edge_count()*2)
 			var face_edges : PoolIntArray
+			face_edges.resize(mdt.get_face_count())
 			var face_surfaces : PoolIntArray
+			face_surfaces.resize(mdt.get_face_count())
 			var edge_faces : PoolIntArray
+			edge_faces.resize(mdt.get_edge_count()*2)
 			var edge_edges : PoolIntArray
+			edge_edges.resize(mdt.get_edge_count()*2)
+
 			for vert_i in mdt.get_vertex_count():
 				vertices[vert_i] = mdt.get_vertex(vert_i)
-				var curr = vert_i
-				var prev = vert_i - 1
-				if prev < 0:
-					prev = mdt.get_vertex_count() - 1
-				var next = vert_i + 1
-				if next >= mdt.get_vertex_count():
-					next = 0
-				vertex_edges.push_back(curr)
-				edge_vertexes.push_back(curr)
-				edge_vertexes.push_back(next)
-				edge_edges.push_back(prev)
-				edge_edges.push_back(next)
+
+			for edge_i in mdt.get_edge_count():
+				vertex_edges[mdt.get_edge_vertex(edge_i, 0)] = edge_i
+				vertex_edges[mdt.get_edge_vertex(edge_i, 1)] = edge_i
+				edge_vertexes[edge_i*2] = mdt.get_edge_vertex(edge_i, 0)
+				edge_vertexes[edge_i*2+1] = mdt.get_edge_vertex(edge_i, 1)
+				var faces = mdt.get_edge_faces(edge_i)
+				assert(len(faces) == 2, "edge %s has %s faces" % [edge_i, len(faces)])
+					
+				edge_faces[edge_i*2] = faces[0]
+				edge_faces[edge_i*2+1] = faces[1]
 
 			for face_i in mdt.get_face_count():
-				face_edges.push_back(mdt.get_face_edge(face_i, 0))
-				face_edges.push_back(mdt.get_face_edge(face_i, 1))
-				face_edges.push_back(mdt.get_face_edge(face_i, 2))
-				face_surfaces.push_back(surface_i)
-				edge_faces.append_array(mdt.get_edge_faces(face_i))
+				var edges = [
+					mdt.get_face_edge(face_i, 0),
+					mdt.get_face_edge(face_i, 1),
+					mdt.get_face_edge(face_i, 2)
+				]
+				face_edges[face_i] = edges[0]
+				face_surfaces[face_i] = 0
+				for i in range(3):
+					var next = (i + 1) % 3
+					var e = edges[i]
+					if edge_faces[e*2] == face_i: # left
+						edge_edges[e*2] = next
+					elif edge_faces[e*2+1] == face_i: # right
+						edge_edges[e*2+1] = next
+					else:
+						assert(false, "edge %s doesn't touch face %s" % [e, face_i])
 				
 			_ply_mesh.set_mesh(
 				vertices, vertex_edges, face_edges, face_surfaces, edge_vertexes, edge_faces, []
 			)
+			print(_ply_mesh.is_manifold())
 			break
 		_on_mesh_updated()
 	elif not _ply_mesh:
