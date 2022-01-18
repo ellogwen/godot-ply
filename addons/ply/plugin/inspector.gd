@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorInspectorPlugin
 
 const PlyEditor = preload("res://addons/ply/nodes/ply.gd")

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-tool
+@tool
 extends Node
 
 # Notification when a plugin starts doing something which will be in progress until

@@ -1,4 +1,4 @@
-tool
+@tool
 extends Control
 
 signal selection_mode_changed(mode)
@@ -19,49 +19,49 @@ const ExportMesh = preload("res://addons/ply/resources/export.gd")
 
 var plugin: EditorPlugin
 
-onready var selection_mesh = $Mesh
-onready var selection_face = $Face
-onready var selection_edge = $Edge
-onready var selection_vertex = $Vertex
+@onready  var selection_mesh = $Mesh
+@onready  var selection_face = $Face
+@onready  var selection_edge = $Edge
+@onready  var selection_vertex = $Vertex
 
-onready var gizmo_global = $Global
-onready var gizmo_local = $Local
-onready var gizmo_normal = $Normal
+@onready  var gizmo_global = $Global
+@onready  var gizmo_local = $Local
+@onready  var gizmo_normal = $Normal
 
-onready var mesh_tools = $MeshTools
-onready var mesh_subdivide = $MeshTools/Subdivide
-onready var mesh_triangulate = $MeshTools/Triangulate
-onready var mesh_invert_normals = $MeshTools/InvertNormals
-onready var mesh_export_to_obj = $MeshTools/ExportOBJ
-onready var mesh_quick_generators = $MeshTools/QuickGenerators
-onready var mesh_generators = $MeshTools/Generators
-onready var generators_modal = $GeneratorsModal
+@onready  var mesh_tools = $MeshTools
+@onready  var mesh_subdivide = $MeshTools/Subdivide
+@onready  var mesh_triangulate = $MeshTools/Triangulate
+@onready  var mesh_invert_normals = $MeshTools/InvertNormals
+@onready  var mesh_export_to_obj = $MeshTools/ExportOBJ
+@onready  var mesh_quick_generators = $MeshTools/QuickGenerators
+@onready  var mesh_generators = $MeshTools/Generators
+@onready  var generators_modal = $GeneratorsModal
 
-onready var face_tools = $FaceTools
-onready var face_select_loop_1 = $FaceTools/FaceLoop1
-onready var face_select_loop_2 = $FaceTools/FaceLoop2
-onready var face_extrude = $FaceTools/Extrude
-onready var face_connect = $FaceTools/Connect
-onready var face_subdivide = $FaceTools/Subdivide
-onready var face_triangulate = $FaceTools/Triangulate
+@onready  var face_tools = $FaceTools
+@onready  var face_select_loop_1 = $FaceTools/FaceLoop1
+@onready  var face_select_loop_2 = $FaceTools/FaceLoop2
+@onready  var face_extrude = $FaceTools/Extrude
+@onready  var face_connect = $FaceTools/Connect
+@onready  var face_subdivide = $FaceTools/Subdivide
+@onready  var face_triangulate = $FaceTools/Triangulate
 
-onready var face_set_shape_1 = $"FaceTools/Surfaces/1"
-onready var face_set_shape_2 = $"FaceTools/Surfaces/2"
-onready var face_set_shape_3 = $"FaceTools/Surfaces/3"
-onready var face_set_shape_4 = $"FaceTools/Surfaces/4"
-onready var face_set_shape_5 = $"FaceTools/Surfaces/5"
-onready var face_set_shape_6 = $"FaceTools/Surfaces/6"
-onready var face_set_shape_7 = $"FaceTools/Surfaces/7"
-onready var face_set_shape_8 = $"FaceTools/Surfaces/8"
-onready var face_set_shape_9 = $"FaceTools/Surfaces/9"
+@onready  var face_set_shape_1 = $"FaceTools/Surfaces/1"
+@onready  var face_set_shape_2 = $"FaceTools/Surfaces/2"
+@onready  var face_set_shape_3 = $"FaceTools/Surfaces/3"
+@onready  var face_set_shape_4 = $"FaceTools/Surfaces/4"
+@onready  var face_set_shape_5 = $"FaceTools/Surfaces/5"
+@onready  var face_set_shape_6 = $"FaceTools/Surfaces/6"
+@onready  var face_set_shape_7 = $"FaceTools/Surfaces/7"
+@onready  var face_set_shape_8 = $"FaceTools/Surfaces/8"
+@onready  var face_set_shape_9 = $"FaceTools/Surfaces/9"
 
-onready var edge_tools = $EdgeTools
-onready var edge_select_loop = $EdgeTools/SelectLoop
-onready var edge_cut_loop = $EdgeTools/CutLoop
-onready var edge_subdivide = $EdgeTools/Subdivide
-onready var edge_collapse = $EdgeTools/Collapse
+@onready  var edge_tools = $EdgeTools
+@onready  var edge_select_loop = $EdgeTools/SelectLoop
+@onready  var edge_cut_loop = $EdgeTools/CutLoop
+@onready  var edge_subdivide = $EdgeTools/Subdivide
+@onready  var edge_collapse = $EdgeTools/Collapse
 
-onready var vertex_tools = $VertexTools
+@onready  var vertex_tools = $VertexTools
 
 
 func _ready() -> void:
@@ -418,22 +418,6 @@ func _edge_collapse():
 		plugin.selection.ply_mesh, plugin.selection.selected_edges, plugin.get_undo_redo()
 	):
 		plugin.selection.selected_edges = []
-
-
-func _export_to_obj():
-	if plugin.ignore_inputs:
-		return
-	if not plugin.selection or selection_mode != SelectionMode.MESH:
-		return
-	var fd = FileDialog.new()
-	fd.set_filters(PoolStringArray(["*.obj ; OBJ Files"]))
-	var base_control = plugin.get_editor_interface().get_base_control()
-	base_control.add_child(fd)
-	fd.popup_centered(Vector2(480, 600))
-	var file_name = yield(fd, "file_selected")
-	var obj_file = File.new()
-	obj_file.open(file_name, File.WRITE)
-	ExportMesh.export_to_obj(plugin.selection.ply_mesh, obj_file)
 
 
 func _mesh_subdivide():

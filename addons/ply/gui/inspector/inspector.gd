@@ -1,27 +1,27 @@
-tool
+@tool
 extends VBoxContainer
 
 const GizmoMode = preload("res://addons/ply/utils/gizmo_mode.gd")
 const SpinSlider = preload("res://addons/ply/gui/inspector/spin_slider.gd")
 
-onready var tool_grid = $"G"
-onready var translate_container = $"G/TranslateInputs"
+@onready var tool_grid = $"G"
+@onready var translate_container = $"G/TranslateInputs"
 var translate_x
 var translate_y
 var translate_z
-onready var rotate_container = $"G/RotateInputs"
+@onready var rotate_container = $"G/RotateInputs"
 var rotate_x
 var rotate_y
 var rotate_z
-onready var scale_container = $"G/ScaleInputs"
+@onready var scale_container = $"G/ScaleInputs"
 var scale_x
 var scale_y
 var scale_z
 
-onready var vertex_count = $"V/VertexCount"
-onready var edge_count = $"V/EdgeCount"
-onready var face_count = $"V/FaceCount"
-onready var selection_text = $"V/Selection"
+@onready var vertex_count = $"V/VertexCount"
+@onready var edge_count = $"V/EdgeCount"
+@onready var face_count = $"V/FaceCount"
+@onready var selection_text = $"V/Selection"
 
 var plugin = null
 var gizmo_transform

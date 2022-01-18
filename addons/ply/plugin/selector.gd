@@ -1,4 +1,4 @@
-tool
+@tool
 extends Object
 
 const Loop = preload("res://addons/ply/resources/loop.gd")

@@ -78,11 +78,11 @@ func startup() -> void:
 
 func teardown() -> void:
 	for i in range(3):
-		VisualServer.free_rid(move_gizmo_instances[i])
-		VisualServer.free_rid(move_plane_gizmo_instances[i])
-		VisualServer.free_rid(rotate_gizmo_instances[i])
-		VisualServer.free_rid(scale_gizmo_instances[i])
-		VisualServer.free_rid(scale_plane_gizmo_instances[i])
+		RenderingServer.free_rid(move_gizmo_instances[i])
+		RenderingServer.free_rid(move_plane_gizmo_instances[i])
+		RenderingServer.free_rid(rotate_gizmo_instances[i])
+		RenderingServer.free_rid(scale_gizmo_instances[i])
+		RenderingServer.free_rid(scale_plane_gizmo_instances[i])
 
 
 # 0: x, 1: y, 2: z
@@ -110,20 +110,20 @@ func _init_materials() -> void:
 	var rotate_shader = Shader.new()
 	rotate_shader.code = ROTATE_SHADER_CODE
 	for i in range(3):
-		var mat = SpatialMaterial.new()
+		var mat = StandardMaterial3D.new()
 		mat.flags_unshaded = true
 		mat.flags_transparent = true
 		mat.flags_no_depth_test = true
-		mat.params_cull_mode = SpatialMaterial.CULL_DISABLED
+		mat.params_cull_mode = StandardMaterial3D.CULL_DISABLED
 		mat.render_priority = 127
 		mat.albedo_color = axis_colors[i]
 		axis_materials[i] = mat
 
-		mat = SpatialMaterial.new()
+		mat = StandardMaterial3D.new()
 		mat.flags_unshaded = true
 		mat.flags_transparent = true
 		mat.flags_no_depth_test = true
-		mat.params_cull_mode = SpatialMaterial.CULL_DISABLED
+		mat.params_cull_mode = StandardMaterial3D.CULL_DISABLED
 		mat.render_priority = 127
 		mat.albedo_color = axis_colors_selected[i]
 		axis_materials_selected[i] = mat
@@ -290,36 +290,36 @@ func _init_meshes() -> void:
 
 func _init_instance() -> void:
 	for i in range(3):
-		move_gizmo_instances[i] = VisualServer.instance_create()
-		VisualServer.instance_set_base(move_gizmo_instances[i], move_gizmo[i])
-		VisualServer.instance_set_scenario(
+		move_gizmo_instances[i] = RenderingServer.instance_create()
+		RenderingServer.instance_set_base(move_gizmo_instances[i], move_gizmo[i])
+		RenderingServer.instance_set_scenario(
 			move_gizmo_instances[i], _plugin.get_tree().root.world.scenario
 		)
-		VisualServer.instance_set_visible(move_gizmo_instances[i], false)
-		VisualServer.instance_geometry_set_cast_shadows_setting(
-			move_gizmo_instances[i], VisualServer.SHADOW_CASTING_SETTING_OFF
+		RenderingServer.instance_set_visible(move_gizmo_instances[i], false)
+		RenderingServer.instance_geometry_set_cast_shadows_setting(
+			move_gizmo_instances[i], RenderingServer.SHADOW_CASTING_SETTING_OFF
 		)
-		VisualServer.instance_set_layer_mask(move_gizmo_instances[i], 100)
+		RenderingServer.instance_set_layer_mask(move_gizmo_instances[i], 100)
 
-		move_plane_gizmo_instances[i] = VisualServer.instance_create()
-		VisualServer.instance_set_base(move_plane_gizmo_instances[i], move_plane_gizmo[i])
-		VisualServer.instance_set_scenario(
+		move_plane_gizmo_instances[i] = RenderingServer.instance_create()
+		RenderingServer.instance_set_base(move_plane_gizmo_instances[i], move_plane_gizmo[i])
+		RenderingServer.instance_set_scenario(
 			move_plane_gizmo_instances[i], _plugin.get_tree().root.world.scenario
 		)
-		VisualServer.instance_set_visible(move_plane_gizmo_instances[i], false)
-		VisualServer.instance_geometry_set_cast_shadows_setting(
-			move_plane_gizmo_instances[i], VisualServer.SHADOW_CASTING_SETTING_OFF
+		RenderingServer.instance_set_visible(move_plane_gizmo_instances[i], false)
+		RenderingServer.instance_geometry_set_cast_shadows_setting(
+			move_plane_gizmo_instances[i], RenderingServer.SHADOW_CASTING_SETTING_OFF
 		)
-		VisualServer.instance_set_layer_mask(move_plane_gizmo_instances[i], 100)
+		RenderingServer.instance_set_layer_mask(move_plane_gizmo_instances[i], 100)
 
-		rotate_gizmo_instances[i] = VisualServer.instance_create()
-		VisualServer.instance_set_base(rotate_gizmo_instances[i], rotate_gizmo[i])
-		VisualServer.instance_set_scenario(
+		rotate_gizmo_instances[i] = RenderingServer.instance_create()
+		RenderingServer.instance_set_base(rotate_gizmo_instances[i], rotate_gizmo[i])
+		RenderingServer.instance_set_scenario(
 			rotate_gizmo_instances[i], _plugin.get_tree().root.world.scenario
 		)
-		VisualServer.instance_set_visible(rotate_gizmo_instances[i], false)
-		VisualServer.instance_geometry_set_cast_shadows_setting(
-			rotate_gizmo_instances[i], VisualServer.SHADOW_CASTING_SETTING_OFF
+		RenderingServer.instance_set_visible(rotate_gizmo_instances[i], false)
+		RenderingServer.instance_geometry_set_cast_shadows_setting(
+			rotate_gizmo_instances[i], RenderingServer.SHADOW_CASTING_SETTING_OFF
 		)
 		VisualServer.instance_set_layer_mask(rotate_gizmo_instances[i], 100)
 
@@ -350,7 +350,7 @@ var transform  # Nullable Transform
 var gizmo_scale: float
 
 
-func _get_transform(camera: Camera) -> Transform:
+func _get_transform(camera: Camera3D) -> Transform3D:
 	var cam_xform = camera.global_transform
 	var xform = transform
 	var camz = -cam_xform.basis.z.normalized()
@@ -413,7 +413,7 @@ func _update_view() -> void:
 		VisualServer.instance_set_visible(scale_plane_gizmo_instances[i], true)
 
 
-func select(camera: Camera, screen_position: Vector2, only_highlight: bool = false) -> bool:
+func select(camera: Camera3D, screen_position: Vector2, only_highlight: bool = false) -> bool:
 	if transform == null:
 		return false
 
@@ -574,7 +574,7 @@ var in_edit: bool = false
 var original_intersect  # nullable vector3
 
 
-func compute_edit(camera: Camera, screen_position: Vector2, snap = null) -> void:
+func compute_edit(camera: Camera3D, screen_position: Vector2, snap = null) -> void:
 	if transform == null:
 		return
 	if not in_edit:

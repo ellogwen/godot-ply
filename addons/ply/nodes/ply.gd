@@ -1,4 +1,4 @@
-tool
+@tool
 extends Node
 
 signal selection_changed
@@ -25,9 +25,11 @@ const Wireframe = preload("res://addons/ply/nodes/ply_wireframe.gd")
 const Vertices = preload("res://addons/ply/nodes/ply_vertices.gd")
 const Faces = preload("res://addons/ply/nodes/ply_faces.gd")
 
-export(String) var parent_property = "mesh"
-export(Resource) var ply_mesh setget set_ply_mesh, get_ply_mesh
-export(Array, Material) var materials setget set_materials
+@export var parent_property = "mesh"
+@export var ply_mesh:
+	set=set_ply_mesh, get=get_ply_mesh
+@export var materials : Array[Material] :
+	set=set_materials
 
 var _ply_mesh: PlyMesh
 
@@ -57,7 +59,7 @@ func set_materials(v) -> void:
 	_paint_faces()
 
 
-onready var parent = get_parent()
+@onready var parent = get_parent()
 
 
 func _ready() -> void:
@@ -184,7 +186,8 @@ func _on_mesh_updated() -> void:
 	emit_signal("selection_mutated")
 
 
-var selected: bool setget _set_selected, _get_selected
+var selected: bool:
+	set=_set_selected, get=_get_selected
 var _wireframe: Wireframe
 var _vertices: Vertices
 var _faces: Faces

@@ -1,4 +1,4 @@
-tool
+@tool
 extends EditorPlugin
 
 signal selection_changed(selection)

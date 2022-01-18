@@ -1,6 +1,6 @@
 extends ImmediateGeometry
 
-onready var editor = get_parent()
+@onready var editor = get_parent()
 
 
 func _ready() -> void:
