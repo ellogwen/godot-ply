@@ -6,27 +6,18 @@
 ;   [section] ; section goes between []
 ;   param=value ; assign values to parameters
 
-config_version=4
-
-_global_script_classes=[ {
-"base": "Resource",
-"class": "PlyMesh",
-"language": "GDScript",
-"path": "res://addons/ply/resources/ply_mesh.gd"
-} ]
-_global_script_class_icons={
-"PlyMesh": ""
-}
+config_version=5
 
 [application]
 
 config/name="PlyDev"
 run/main_scene="res://addons/ply/demo/demo.tscn"
 config/icon="res://icon_lg.png"
+config/features=PackedStringArray("4.0")
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/ply/plugin.cfg" )
+enabled=PackedStringArray()
 
 [physics]
 
